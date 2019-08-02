@@ -2,29 +2,116 @@ function buildMetadata(sample) {
 
   // @TODO: Complete the following function that builds the metadata panel
 
+
   // Use `d3.json` to fetch the metadata for a sample
     // Use d3 to select the panel with id of `#sample-metadata`
+    d3.json(`/metadata/${sample}`).then((data) => {
+      var sample_data = d3.select("#sample-metadata");
 
-    // Use `.html("") to clear any existing metadata
+
+
+      // Use `.html("") to clear any existing metadata
+      sample_data.html("");
+
+
 
     // Use `Object.entries` to add each key and value pair to the panel
     // Hint: Inside the loop, you will need to use d3 to append new
     // tags for each key-value in the metadata.
+      Object.entries(data).forEach(function([key, value]) {
+        sample_data.append("h6").text('${key}:${value}')
+      });
+
+
+    });
+
 
     // BONUS: Build the Gauge Chart
     // buildGauge(data.WFREQ);
-}
+};
+
+
 
 function buildCharts(sample) {
 
+
+
   // @TODO: Use `d3.json` to fetch the sample data for the plots
+  d3.json(`/samples/${sample}`).then((data) => {
 
     // @TODO: Build a Bubble Chart using the sample data
+    let otu_ids  = data.otu_ids;
+    let otu_labels = data.otu_labels;
+    let sample_values = data.sample_values;
+
+
+
+    let bubble_chart = {
+
+      mode: "markers",
+      x: otu_ids,
+      y: sample_values,
+      text: otu_labels, 
+      marker: {color:otu_ids, colorscale:"Rainbow", size:sample_values}
+
+    };
+
+
+
+    let bubble_data = [bubble_chart];
+
+
+
+    let bubble_layout = {
+
+      title : "Bacteria Type and Counts",
+      showlegend: false,
+      height: 600,
+      width: 1000
+
+    };
+
+
+
+    Plotly.newPlot("bubble", bubble_data, bubble_layout);
+
+
+
+
 
     // @TODO: Build a Pie Chart
     // HINT: You will need to use slice() to grab the top 10 sample_values,
-    // otu_ids, and labels (10 each).
-}
+ 
+
+
+
+
+    let pie_chart = {
+
+      labels: otu_ids.slice(0, 10), 
+      values: sample_values.slice(0, 10),
+      hovertext: otu_labels.slice(0, 10),
+      type: "pie"
+
+    };
+
+    let pie_layout = {
+
+      height: 500,
+      width: 600
+
+    };
+
+    // console.log(data);
+
+
+    Plotly.newPlot("pie", pie_chart, pie_layout);
+
+
+  });
+};
+
+
 
 function init() {
   // Grab a reference to the dropdown select element
